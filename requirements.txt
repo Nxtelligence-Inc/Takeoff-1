@@ -1,0 +1,13 @@
+matplotlib
+opencv-python
+numpy
+pytest
+python-dotenv
+requests
+openai
+google-cloud-vision
+psycopg
+supabase
+scikit-learn
+flask
+gunicorn

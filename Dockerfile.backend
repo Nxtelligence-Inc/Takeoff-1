@@ -1,0 +1,35 @@
+# Base image
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the Python source code
+COPY src/ ./src/
+
+# Create directories for data exchange
+RUN mkdir -p public/uploads public/results
+
+# Set environment variable for non-interactive mode
+ENV NON_INTERACTIVE=true
+
+# Copy the API server file
+COPY src/api.py ./src/
+
+# Expose the port the API runs on
+EXPOSE 5000
+
+# Run the Flask API server with gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src.api:app"]
