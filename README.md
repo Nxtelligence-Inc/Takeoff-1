@@ -1,4 +1,4 @@
-# Foundation Plan Analyzer
+# Takeoff-1: Foundation Plan Analyzer
 
 A comprehensive tool for analyzing foundation plan drawings, extracting perimeter walls, calculating ICF-specific metrics, and generating detailed material quotations for ICF construction.
 
@@ -97,8 +97,8 @@ This project provides a complete solution for ICF (Insulated Concrete Form) cont
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/foundation-plan-analyzer.git
-   cd foundation-plan-analyzer
+   git clone https://github.com/Nxtelligence-Inc/Takeoff-1.git
+   cd Takeoff-1
    ```
 
 2. Set up the backend:
