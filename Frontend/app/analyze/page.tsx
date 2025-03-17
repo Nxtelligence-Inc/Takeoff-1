@@ -21,7 +21,7 @@ export default function AnalyzePage() {
 
   return (
     <NotionLayout>
-      <div className="max-w-4xl">
+      <div className="max-w-5xl">
         {/* Page header */}
         <div className="mb-8">
           <h1
