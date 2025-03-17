@@ -83,9 +83,9 @@ export default async function AnalysesPage() {
               }}
             >
               <FileText className="notion-page-icon h-8 w-8" />
-              All Analyses
+              Archive
             </h1>
-            <p className="text-muted-foreground mt-2">Browse and filter all foundation plan analyses</p>
+            <p className="text-muted-foreground mt-2">Browse, filter, and review your past takeoff plans</p>
           </div>
 
           <Link href="/analyze">
