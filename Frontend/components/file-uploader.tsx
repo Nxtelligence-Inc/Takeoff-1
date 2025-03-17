@@ -122,7 +122,7 @@ export function FileUploader({
         setFile(resizedFile);
       } catch (err) {
         setError('Error processing image. Please try another file.');
-        console.error('Image processing error:', err);
+        // Silently handle image processing errors
       }
     }
   }
@@ -158,7 +158,7 @@ export function FileUploader({
         setFile(resizedFile);
       } catch (err) {
         setError('Error processing image. Please try another file.');
-        console.error('Image processing error:', err);
+        // Silently handle image processing errors
       }
     }
   }

@@ -31,7 +31,8 @@ export function AnalysisExportActions({
       });
       doc.save(`${drawingName}-quotation.pdf`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      // Show alert instead of logging to console
+      alert('Error generating PDF. Please try again.');
     }
   };
 
@@ -65,7 +66,7 @@ export function AnalysisExportActions({
           url: window.location.href
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        // Silently handle sharing errors
       }
     } else {
       // Fallback: Copy URL to clipboard

@@ -102,7 +102,7 @@
 
 .notion-main {
   margin-left: 0;
-  padding-top: 1rem;
+  padding-top: 5rem; /* Increased from 1rem to 5rem to account for the header height */
   min-height: 100vh;
 }
 
@@ -306,4 +306,3 @@ h6 {
   font-weight: 710;
   letter-spacing: -.04em;
 }
-

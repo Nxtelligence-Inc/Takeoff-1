@@ -60,7 +60,7 @@ export function ICFMetricsDisplay({ analysisId }: ICFMetricsDisplayProps) {
           setWallThicknessInches(parseInt(thicknessMatch[1], 10))
         }
       } catch (e) {
-        console.error("Error parsing wall thickness:", e)
+        // Silently handle parsing errors
       }
     }
     
@@ -92,7 +92,7 @@ export function ICFMetricsDisplay({ analysisId }: ICFMetricsDisplayProps) {
         
         setLoading(false)
       } catch (err) {
-        console.error("Error fetching metrics data:", err)
+        // Set error state instead of logging to console
         setError(err instanceof Error ? err.message : "Failed to load metrics data")
         setLoading(false)
       }

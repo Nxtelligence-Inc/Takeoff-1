@@ -132,7 +132,7 @@ export function ICFMaterialsQuotation({ analysisId, onCalculation }: ICFMaterial
         
         setLoading(false)
       } catch (err) {
-        console.error("Error fetching analysis data:", err)
+        // Set error state instead of logging to console
         setError(err instanceof Error ? err.message : "Failed to load analysis data")
         setLoading(false)
       }
@@ -160,7 +160,7 @@ export function ICFMaterialsQuotation({ analysisId, onCalculation }: ICFMaterial
         wallThicknessInches = parseInt(thicknessMatch[1], 10)
       }
     } catch (e) {
-      console.error("Error parsing wall thickness:", e)
+      // Silently handle parsing errors
     }
     
     // Adjust settings based on wall height and thickness

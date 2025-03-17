@@ -1,6 +1,6 @@
 "use client"
+import React, { useState, useEffect } from "react"
 import { notFound } from "next/navigation"
-import { useState, useEffect } from "react"
 import Image from "next/image"
 import { NotionLayout } from "../../../components/notion-layout"
 import { Button } from "../../../components/ui/button"
@@ -20,17 +20,21 @@ async function getAnalysisData(id: string) {
   try {
     const response = await fetch(`/results/${id}/analysis_results.json`)
     if (!response.ok) {
-      throw new Error(`Failed to fetch analysis data: ${response.statusText}`)
+      return null
     }
     const data = await response.json()
     return data
   } catch (error) {
-    console.error("Error fetching analysis data:", error)
+    // Silently return null for any errors
     return null
   }
 }
 
 export default function AnalysisDetailPage({ params }: { params: { id: string } }) {
+  // Store the ID in a ref to avoid re-renders
+  const idRef = React.useRef(params.id);
+  const id = idRef.current;
+  
   const [materials, setMaterials] = useState<ICFMaterialsCalculation | null>(null)
   const [analysisData, setAnalysisData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -40,20 +44,20 @@ export default function AnalysisDetailPage({ params }: { params: { id: string } 
     async function loadData() {
       try {
         setLoading(true)
-        const data = await getAnalysisData(params.id)
+        const data = await getAnalysisData(id)
         if (!data) {
           notFound()
         }
         setAnalysisData(data)
         setLoading(false)
       } catch (err) {
-        console.error("Error loading analysis data:", err)
+        // Set error state instead of logging to console
         setError(err instanceof Error ? err.message : "Failed to load analysis")
         setLoading(false)
       }
     }
     loadData()
-  }, [params.id])
+  }, [id])
 
   if (loading) {
     return <div className="p-4 text-center">Loading analysis data...</div>
@@ -94,7 +98,7 @@ export default function AnalysisDetailPage({ params }: { params: { id: string } 
 
           {materials && (
             <AnalysisExportActions
-              analysisId={params.id}
+              analysisId={id}
               drawingName={metadata.drawing_name || "Unnamed Analysis"}
               projectId={metadata.project_id || "Default Project"}
               timestamp={metadata.timestamp || new Date().toISOString()}
@@ -122,7 +126,7 @@ export default function AnalysisDetailPage({ params }: { params: { id: string } 
                     />
                   </div>
                 ) : (
-                  <FoundationPlanVisualization analysisId={params.id} />
+                  <FoundationPlanVisualization analysisId={id} />
                 )}
               </div>
             </div>
@@ -135,7 +139,7 @@ export default function AnalysisDetailPage({ params }: { params: { id: string } 
                 <p className="text-sm text-muted-foreground">Key measurements and calculations</p>
               </div>
               <div className="p-4">
-                <ICFMetricsDisplay analysisId={params.id} />
+                <ICFMetricsDisplay analysisId={id} />
               </div>
             </div>
           </div>
@@ -163,7 +167,7 @@ export default function AnalysisDetailPage({ params }: { params: { id: string } 
                 </TabsList>
 
                 <TabsContent value="walls" className="mt-4">
-                  <WallsTable analysisId={params.id} />
+                  <WallsTable analysisId={id} />
                 </TabsContent>
 
                 <TabsContent value="corners" className="mt-4">
@@ -202,7 +206,7 @@ export default function AnalysisDetailPage({ params }: { params: { id: string } 
         {/* ICF Materials Quotation */}
         <div className="mt-6">
           <ICFMaterialsQuotation 
-            analysisId={params.id} 
+            analysisId={id} 
             onCalculation={setMaterials}
           />
         </div>

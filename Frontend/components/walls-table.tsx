@@ -52,7 +52,7 @@ export function WallsTable({ analysisId }: WallsTableProps) {
       
       return { feet, inches }
     } catch (error) {
-      console.error("Error parsing length:", lengthStr, error)
+      // Silently handle parsing errors
       return { feet: 0, inches: 0 }
     }
   }
@@ -85,7 +85,7 @@ export function WallsTable({ analysisId }: WallsTableProps) {
         
         setLoading(false)
       } catch (err) {
-        console.error("Error fetching walls data:", err)
+        // Set error state instead of logging to console
         setError(err instanceof Error ? err.message : "Failed to load walls data")
         setLoading(false)
       }
@@ -162,7 +162,7 @@ export function WallsTable({ analysisId }: WallsTableProps) {
       setEditingWall(null)
       setIsSaving(false)
     } catch (err) {
-      console.error("Error saving wall length:", err)
+      // Show alert instead of logging to console
       alert("Failed to save changes. Please try again.")
       setIsSaving(false)
     }

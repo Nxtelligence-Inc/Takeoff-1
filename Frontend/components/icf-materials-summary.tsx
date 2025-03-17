@@ -36,7 +36,8 @@ export function ICFMaterialsSummary({ materials }: ICFMaterialsSummaryProps) {
       });
       doc.save("materials-quotation.pdf");
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      // Show alert instead of logging to console
+      alert('Error generating PDF. Please try again.');
     }
   };
 

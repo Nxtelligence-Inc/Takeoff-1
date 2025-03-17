@@ -10,15 +10,15 @@ import Link from "next/link"
 // Make this a dynamic page that fetches data at request time
 export const dynamic = "force-dynamic"
 
+import { existsSync } from "fs"
+
 async function getAllAnalyses() {
   try {
     const resultsDir = path.join(process.cwd(), "public", "results")
     
     // Check if the directory exists
-    try {
-      await readdir(resultsDir)
-    } catch (error) {
-      console.log("Results directory does not exist yet")
+    if (!existsSync(resultsDir)) {
+      // Results directory doesn't exist yet
       return []
     }
     
@@ -27,8 +27,14 @@ async function getAllAnalyses() {
     const analyses = []
     
     for (const dir of analysisDirs.filter(dirent => dirent.isDirectory())) {
+      const analysisPath = path.join(resultsDir, dir.name, "analysis_results.json")
+      
+      // Skip if the analysis file doesn't exist
+      if (!existsSync(analysisPath)) {
+        continue
+      }
+      
       try {
-        const analysisPath = path.join(resultsDir, dir.name, "analysis_results.json")
         const data = await readFile(analysisPath, "utf8")
         const analysis = JSON.parse(data)
         
@@ -42,7 +48,8 @@ async function getAllAnalyses() {
           wall_area_sqft: analysis.icf_metrics?.wall_area_sqft
         })
       } catch (error) {
-        console.error(`Error reading analysis ${dir.name}:`, error)
+        // Silently skip analyses with errors
+        continue
       }
     }
     
@@ -51,7 +58,7 @@ async function getAllAnalyses() {
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     )
   } catch (error) {
-    console.error("Error listing analyses:", error)
+    // Return empty array for any errors
     return []
   }
 }

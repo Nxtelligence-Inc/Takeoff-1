@@ -74,7 +74,7 @@ export function FoundationPlanVisualization({ analysisId }: FoundationPlanVisual
         renderFoundationPlan(data)
         setLoading(false)
       } catch (err) {
-        console.error("Error fetching analysis data:", err)
+        // Set error state instead of logging to console
         setError(err instanceof Error ? err.message : "Failed to load visualization")
         setLoading(false)
       }
