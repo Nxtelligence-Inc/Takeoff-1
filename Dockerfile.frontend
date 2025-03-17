@@ -28,6 +28,8 @@ RUN rm -rf node_modules && \
 COPY Frontend/ ./
 
 # Build the Next.js application
+# Add NODE_PATH to ensure correct module resolution during build
+ENV NODE_PATH=/app
 RUN npm run build
 
 # Create volume directories

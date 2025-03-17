@@ -19,6 +19,11 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
     optimizePackageImports: ['@radix-ui/react-icons'],
+  },
+  webpack: (config) => {
+    // Ensure proper module resolution
+    config.resolve.modules = ['node_modules', '.']
+    return config
   }
 }
 
