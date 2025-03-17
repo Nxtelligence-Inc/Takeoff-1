@@ -8,7 +8,11 @@ RUN apk add --no-cache python3 make g++ libc6-compat
 
 # Set build environment
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_PATH=/app \
+    NEXT_PUBLIC_API_URL=http://icf-backend:5000 \
+    TS_NODE_BASEURL=/app \
+    NEXT_PRIVATE_LOCAL_WEBPACK_PROCESSING=true
 
 # Copy package files
 COPY Frontend/package*.json ./
