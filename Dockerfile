@@ -12,11 +12,6 @@ WORKDIR /app
 # Clone the repository
 RUN git clone https://github.com/Nxtelligence-Inc/Takeoff-1.git /tmp/repo
 
-# Set build environment
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    NEXT_PUBLIC_API_URL=http://localhost:5000
-
 # Copy package files from the cloned repository
 RUN cp -r /tmp/repo/Frontend/package*.json ./
 
@@ -27,8 +22,63 @@ RUN npm install --legacy-peer-deps && \
 # Copy the rest of the frontend code from the cloned repository
 RUN cp -r /tmp/repo/Frontend/* ./
 
+# Create a script to fix import paths
+RUN echo '// Script to fix import paths in Next.js files\n\
+const fs = require("fs");\n\
+const path = require("path");\n\
+\n\
+// Function to recursively find all .tsx and .ts files\n\
+function findFiles(dir, fileList = []) {\n\
+  const files = fs.readdirSync(dir);\n\
+  \n\
+  files.forEach(file => {\n\
+    const filePath = path.join(dir, file);\n\
+    const stat = fs.statSync(filePath);\n\
+    \n\
+    if (stat.isDirectory()) {\n\
+      findFiles(filePath, fileList);\n\
+    } else if (file.endsWith(".tsx") || file.endsWith(".ts")) {\n\
+      fileList.push(filePath);\n\
+    }\n\
+  });\n\
+  \n\
+  return fileList;\n\
+}\n\
+\n\
+// Function to fix imports in a file\n\
+function fixImports(filePath) {\n\
+  let content = fs.readFileSync(filePath, "utf8");\n\
+  \n\
+  // Replace @/ imports with relative paths\n\
+  content = content.replace(/from\\s+["\\']@\\/([^"\\']+)["\\']/g, (match, importPath) => {\n\
+    return `from "./${importPath}"`;\n\
+  });\n\
+  \n\
+  fs.writeFileSync(filePath, content);\n\
+  console.log(`Fixed imports in ${filePath}`);\n\
+}\n\
+\n\
+// Main function\n\
+function main() {\n\
+  const files = findFiles(".");\n\
+  \n\
+  files.forEach(file => {\n\
+    fixImports(file);\n\
+  });\n\
+  \n\
+  console.log(`Fixed imports in ${files.length} files`);\n\
+}\n\
+\n\
+main();\n' > fix-imports.js && node fix-imports.js
+
+# Set environment variables for build
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_PUBLIC_API_URL=http://localhost:5000 \
+    NODE_PATH=/app
+
 # Build the Next.js application
-RUN npm run build
+RUN NODE_PATH=/app npm run build
 
 # Backend stage
 FROM python:3.9-slim
