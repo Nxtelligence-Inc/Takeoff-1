@@ -1,50 +1,30 @@
-FROM node:18.17.1-alpine AS base
+FROM node:18.17.1-alpine
 
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Set working directory
 WORKDIR /app
 
-# Copy only package files to leverage Docker cache
-COPY Frontend/package.json Frontend/package-lock.json ./
-RUN npm ci
+# Install dependencies
+RUN apk add --no-cache python3 make g++ libc6-compat
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY Frontend/ .
-
-# Next.js collects anonymous telemetry data about general usage
-ENV NEXT_TELEMETRY_DISABLED 1
-
-# Run build
-RUN npm run build
-
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
-
+# Set build environment
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+# Copy package files
+COPY Frontend/package*.json ./
 
-# Copy built files
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the frontend code
+COPY Frontend/ ./
+
+# Build the Next.js application
+RUN npm run build
 
 # Create volume directories
-RUN mkdir -p public/uploads public/results && \
-    chown -R nextjs:nodejs public
-
-USER nextjs
+RUN mkdir -p public/uploads public/results
 
 EXPOSE 3000
 
-ENV PORT 3000
-
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
