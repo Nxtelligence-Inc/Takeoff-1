@@ -70,7 +70,7 @@ export default async function AnalysesPage() {
               style={{
                 fontSize: "30px",
                 fontStyle: "normal",
-                fontWeight: 605,
+                fontWeight: 710,
                 lineHeight: "95%",
                 letterSpacing: "-0.04em",
               }}
