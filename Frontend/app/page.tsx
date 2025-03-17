@@ -16,17 +16,34 @@ async function getRecentAnalyses(limit = 3) {
     try {
       await readdir(resultsDir)
     } catch (error) {
-      console.log("Results directory does not exist yet")
+      // Silently return empty array if results directory doesn't exist
       return []
     }
     
-    const analysisDirs = await readdir(resultsDir, { withFileTypes: true })
+    // Get all directories in the results folder
+    let analysisDirs
+    try {
+      analysisDirs = await readdir(resultsDir, { withFileTypes: true })
+    } catch (error) {
+      // Handle any errors reading the directory
+      return []
+    }
     
     const analyses = []
     
+    // Only process directories
     for (const dir of analysisDirs.filter(dirent => dirent.isDirectory())) {
       try {
         const analysisPath = path.join(resultsDir, dir.name, "analysis_results.json")
+        
+        // Check if the file exists before trying to read it
+        try {
+          await readFile(analysisPath, { encoding: 'utf8' })
+        } catch (error) {
+          // Skip this directory if the file doesn't exist
+          continue
+        }
+        
         const data = await readFile(analysisPath, "utf8")
         const analysis = JSON.parse(data)
         
@@ -40,7 +57,8 @@ async function getRecentAnalyses(limit = 3) {
           wall_area_sqft: analysis.icf_metrics?.wall_area_sqft
         })
       } catch (error) {
-        console.error(`Error reading analysis ${dir.name}:`, error)
+        // Silently skip any analyses with errors
+        continue
       }
     }
     
@@ -49,7 +67,7 @@ async function getRecentAnalyses(limit = 3) {
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit)
   } catch (error) {
-    console.error("Error listing analyses:", error)
+    // Return empty array for any errors
     return []
   }
 }
@@ -62,7 +80,7 @@ async function getMetricsOverview() {
     try {
       await readdir(resultsDir)
     } catch (error) {
-      console.log("Results directory does not exist yet")
+      // Silently return default metrics if results directory doesn't exist
       return {
         total_analyses: 0,
         avg_linear_feet: 0,
@@ -70,15 +88,36 @@ async function getMetricsOverview() {
       }
     }
     
-    const analysisDirs = await readdir(resultsDir, { withFileTypes: true })
+    // Get all directories in the results folder
+    let analysisDirs
+    try {
+      analysisDirs = await readdir(resultsDir, { withFileTypes: true })
+    } catch (error) {
+      // Handle any errors reading the directory
+      return {
+        total_analyses: 0,
+        avg_linear_feet: 0,
+        avg_corners: 0
+      }
+    }
     
     let totalAnalyses = 0
     let totalLinearFeet = 0
     let totalCorners = 0
     
+    // Only process directories
     for (const dir of analysisDirs.filter(dirent => dirent.isDirectory())) {
       try {
         const analysisPath = path.join(resultsDir, dir.name, "analysis_results.json")
+        
+        // Check if the file exists before trying to read it
+        try {
+          await readFile(analysisPath, { encoding: 'utf8' })
+        } catch (error) {
+          // Skip this directory if the file doesn't exist
+          continue
+        }
+        
         const data = await readFile(analysisPath, "utf8")
         const analysis = JSON.parse(data)
         
@@ -92,7 +131,8 @@ async function getMetricsOverview() {
           totalCorners += parseInt(analysis.icf_metrics.total_corners)
         }
       } catch (error) {
-        console.error(`Error reading analysis ${dir.name}:`, error)
+        // Silently skip any analyses with errors
+        continue
       }
     }
     
@@ -102,7 +142,7 @@ async function getMetricsOverview() {
       avg_corners: totalAnalyses > 0 ? (totalCorners / totalAnalyses).toFixed(1) : 0
     }
   } catch (error) {
-    console.error("Error calculating metrics:", error)
+    // Return default metrics for any errors
     return {
       total_analyses: 0,
       avg_linear_feet: 0,
