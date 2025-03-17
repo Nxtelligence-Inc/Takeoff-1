@@ -3,8 +3,10 @@
 import { ICFMaterialsCalculation } from "./icf-materials-quotation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Download, Printer } from "lucide-react"
+import { Download, Printer, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { generateQuotationPDF } from "@/lib/pdf-generator"
+import { generateQuotationCSV } from "@/lib/csv-formatter"
 
 interface ICFMaterialsSummaryProps {
   materials: ICFMaterialsCalculation
@@ -24,56 +26,46 @@ export function ICFMaterialsSummary({ materials }: ICFMaterialsSummaryProps) {
     window.print()
   }
   
-  // Handle export (CSV)
-  const handleExport = () => {
-    // Create CSV content
-    const csvContent = [
-      "ICF Materials Quotation Summary",
-      "",
-      "Panel Requirements",
-      `Standard Panels,${materials.standardPanels.count},panels`,
-      `Standard Panel Area,${formatNumber(materials.standardPanels.areaSqft, 1)},sq ft`,
-      `Corner Panels,${materials.cornerPanels.count},panels`,
-      "",
-      "Rebar Requirements",
-      `Vertical Rebar,${materials.verticalRebar.type},${formatNumber(materials.verticalRebar.count)} pieces,${formatNumber(materials.verticalRebar.lengthFeet, 1)} linear ft`,
-      `Horizontal Rebar,${materials.horizontalRebar.type},${formatNumber(materials.horizontalRebar.count)} courses,${formatNumber(materials.horizontalRebar.lengthFeet, 1)} linear ft`,
-      "",
-      "Concrete Requirements",
-      `Strength,${formatNumber(materials.concrete.strengthPsi)} PSI`,
-      `Slump,${materials.concrete.slumpInches}"`,
-      `Volume,${formatNumber(materials.concrete.volumeCuYd, 1)} cu yd`,
-      `Volume with Waste,${formatNumber(materials.concrete.volumeWithWaste, 1)} cu yd`,
-      "",
-      "Accessories",
-      `Form Alignment Systems,${formatNumber(materials.formAlignmentSystems.count)}`,
-      `Bracing,${formatNumber(materials.bracing.count)}`,
-      `Window/Door Bucks,${formatNumber(materials.windowDoorBucks.linearFeet, 1)} linear ft`,
-      `Fastening Strips,${formatNumber(materials.fasteningStrips.count)}`,
-      "",
-      "Labor Estimates",
-      `Crew Days,${formatNumber(materials.labor.crewDays, 1)} days`,
-      `Pour Time,${formatNumber(materials.labor.pourTimeHours, 1)} hours`
-    ].join("\n")
+  // Handle PDF export
+  const handlePdfExport = async () => {
+    try {
+      const doc = await generateQuotationPDF(materials, {
+        drawingName: "Materials Summary",
+        projectId: "Current Project",
+        timestamp: new Date().toISOString()
+      });
+      doc.save("materials-quotation.pdf");
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
+  // Handle CSV export
+  const handleCsvExport = () => {
+    const csvContent = generateQuotationCSV(materials);
     
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.setAttribute("href", url)
-    link.setAttribute("download", "icf_materials_quotation.csv")
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    // Create blob and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "materials-quotation.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">ICF Materials Summary</h3>
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
+          <Button variant="outline" size="sm" onClick={handlePdfExport}>
+            <FileText className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleCsvExport}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>

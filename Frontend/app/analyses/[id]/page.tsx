@@ -1,49 +1,73 @@
+"use client"
 import { notFound } from "next/navigation"
-import { readFile } from "fs/promises"
-import path from "path"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { NotionLayout } from "@/components/notion-layout"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Share2, FileText } from "lucide-react"
+import { FileText } from "lucide-react"
+import { AnalysisExportActions } from "@/components/analysis-export-actions"
 import { FoundationPlanVisualization } from "@/components/foundation-plan-visualization"
 import { ICFMetricsTable } from "@/components/icf-metrics-table"
 import { ICFMetricsDisplay } from "@/components/icf-metrics-display"
 import { WallsTable } from "@/components/walls-table"
-import { ICFMaterialsQuotation } from "@/components/icf-materials-quotation"
+import { ICFMaterialsQuotation, ICFMaterialsCalculation } from "@/components/icf-materials-quotation"
 
 // Make this a dynamic page that fetches data at request time
 export const dynamic = "force-dynamic"
 
 async function getAnalysisData(id: string) {
   try {
-    const resultsPath = path.join(
-      process.cwd(),
-      "public",
-      "results",
-      id,
-      "analysis_results.json"
-    )
-    const data = await readFile(resultsPath, "utf8")
-    return JSON.parse(data)
+    const response = await fetch(`/results/${id}/analysis_results.json`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch analysis data: ${response.statusText}`)
+    }
+    const data = await response.json()
+    return data
   } catch (error) {
-    console.error("Error reading analysis data:", error)
+    console.error("Error fetching analysis data:", error)
     return null
   }
 }
 
-export default async function AnalysisDetailPage({ params }: { params: { id: string } }) {
-  const analysisData = await getAnalysisData(params.id)
-  
-  if (!analysisData) {
-    notFound()
+export default function AnalysisDetailPage({ params }: { params: { id: string } }) {
+  const [materials, setMaterials] = useState<ICFMaterialsCalculation | null>(null)
+  const [analysisData, setAnalysisData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true)
+        const data = await getAnalysisData(params.id)
+        if (!data) {
+          notFound()
+        }
+        setAnalysisData(data)
+        setLoading(false)
+      } catch (err) {
+        console.error("Error loading analysis data:", err)
+        setError(err instanceof Error ? err.message : "Failed to load analysis")
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [params.id])
+
+  if (loading) {
+    return <div className="p-4 text-center">Loading analysis data...</div>
+  }
+
+  if (error || !analysisData) {
+    return <div className="p-4 text-center text-red-500">{error || "Analysis not found"}</div>
   }
 
   const metadata = analysisData.metadata || {}
   const corners = analysisData.corners || []
   const walls = analysisData.walls || []
   const icfMetrics = analysisData.icf_metrics || {}
-  
+
   return (
     <NotionLayout>
       <div className="max-w-5xl">
@@ -68,16 +92,15 @@ export default async function AnalysisDetailPage({ params }: { params: { id: str
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="text-muted-foreground">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" className="text-muted-foreground">
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
-          </div>
+          {materials && (
+            <AnalysisExportActions
+              analysisId={params.id}
+              drawingName={metadata.drawing_name || "Unnamed Analysis"}
+              projectId={metadata.project_id || "Default Project"}
+              timestamp={metadata.timestamp || new Date().toISOString()}
+              materials={materials}
+            />
+          )}
         </div>
 
         {/* Main content */}
@@ -178,7 +201,10 @@ export default async function AnalysisDetailPage({ params }: { params: { id: str
         
         {/* ICF Materials Quotation */}
         <div className="mt-6">
-          <ICFMaterialsQuotation analysisId={params.id} />
+          <ICFMaterialsQuotation 
+            analysisId={params.id} 
+            onCalculation={setMaterials}
+          />
         </div>
       </div>
     </NotionLayout>

@@ -7,7 +7,8 @@ import { ICFCalculationSettings } from "./icf-calculation-settings"
 import { ICFMaterialsSummary } from "./icf-materials-summary"
 
 interface ICFMaterialsQuotationProps {
-  analysisId: string
+  analysisId: string;
+  onCalculation?: (materials: ICFMaterialsCalculation | null) => void;
 }
 
 export interface ICFSettings {
@@ -86,7 +87,7 @@ export interface ICFMaterialsCalculation {
   };
 }
 
-export function ICFMaterialsQuotation({ analysisId }: ICFMaterialsQuotationProps) {
+export function ICFMaterialsQuotation({ analysisId, onCalculation }: ICFMaterialsQuotationProps) {
   const [analysisData, setAnalysisData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -305,8 +306,8 @@ export function ICFMaterialsQuotation({ analysisId }: ICFMaterialsQuotationProps
     // Pour rate: Typically 4' vertical lift per hour
     const pourTimeHours = wallHeightFeet / 4
     
-    // Set materials calculation
-    setMaterials({
+    // Create materials calculation
+    const newMaterials = {
       standardPanels: {
         count: standardPanelsCount,
         areaSqft: standardPanelsArea
@@ -346,8 +347,12 @@ export function ICFMaterialsQuotation({ analysisId }: ICFMaterialsQuotationProps
         crewDays: crewDays,
         pourTimeHours: pourTimeHours
       }
-    })
-  }, [analysisData, settings])
+    }
+    
+    // Update materials state and notify parent
+    setMaterials(newMaterials)
+    onCalculation?.(newMaterials)
+  }, [analysisData, settings, onCalculation])
 
   // Handle settings change
   const handleSettingsChange = (newSettings: ICFSettings) => {
