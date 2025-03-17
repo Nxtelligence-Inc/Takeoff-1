@@ -1,5 +1,5 @@
 # Base image
-FROM node:18-alpine
+FROM node:18.17-alpine
 
 # Set working directory
 WORKDIR /app
@@ -10,22 +10,21 @@ RUN apk add --no-cache python3 make g++ libc6-compat
 # Set build environment
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
-    NPM_CONFIG_LOGLEVEL=verbose \
-    NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT=60000 \
-    NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=10000 \
-    NPM_CONFIG_FETCH_RETRIES=5
+    NODE_OPTIONS="--max-old-space-size=4096" \
+    NEXT_SHARP_PATH=/usr/local/lib/node_modules/sharp \
+    NEXT_EXPERIMENTAL_COMPILE=1
 
 # Copy package files
 COPY Frontend/package*.json ./
 
 # Install dependencies
-RUN npm install --force --verbose
+RUN npm install --force --no-audit
 
 # Copy the rest of the frontend code
 COPY Frontend/ ./
 
 # Build the Next.js application
-RUN npm run build
+RUN npm run build || (cat .next/error.log && exit 1)
 
 # Expose the port the app runs on
 EXPOSE 3000
