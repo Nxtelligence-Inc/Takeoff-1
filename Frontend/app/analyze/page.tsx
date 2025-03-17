@@ -35,16 +35,16 @@ export default function AnalyzePage() {
             }}
           >
             <Upload className="notion-page-icon h-8 w-8" />
-            Analyze Your Takeoff Plan
+            Takeoff Analysis
           </h1>
-          <p className="text-muted-foreground mt-2">Upload a takeoff plan to analyze and extract ICF data</p>
+          <p className="text-muted-foreground mt-2">Upload a takeoff to analyze and extract ICF data</p>
         </div>
 
         {/* Main content */}
         <div className="grid gap-6 md:grid-cols-2">
           <div className="notion-card">
             <div className="p-4 border-b border-border/60">
-              <h2 className="text-lg font-weight-605">Upload Takeoff Plan</h2>
+              <h2 className="text-lg font-weight-605">Upload Plan</h2>
               <p className="text-sm text-muted-foreground">Upload a takeoff plan to evaluate its dimensions</p>
             </div>
             <CardContent className="p-4">
