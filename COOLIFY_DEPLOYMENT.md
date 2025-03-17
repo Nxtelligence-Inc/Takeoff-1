@@ -8,31 +8,25 @@ We've simplified the deployment by:
 1. Creating a single Dockerfile that builds both frontend and backend
 2. Using Supervisor to run both services in one container
 3. Simplifying the docker-compose.yaml file
+4. Configuring the Dockerfile to clone the repository from GitHub
 
 ## Deployment Steps
 
-### 1. Push Your Code to GitHub
-
-Make sure your repository includes:
-- The new `Dockerfile`
-- The updated `docker-compose.yaml`
-- All your source code (Frontend/ and src/ directories)
-- All configuration files
-
-### 2. Set Up in Coolify
+### 1. Set Up in Coolify
 
 1. Log in to your Coolify dashboard
 2. Create a new resource
 3. Select "Application" as the resource type
 4. Choose "Docker" as the deployment type (not Nixpacks)
-5. Connect to your GitHub repository
-6. Select the branch (main)
 
-### 3. Configure Docker Settings
+### 2. Configure Docker Settings
 
-1. Set the Dockerfile path to `Dockerfile` (the root Dockerfile we created)
-2. Set the Docker Compose file path to `docker-compose.yaml`
-3. Set the service name to `icf-app`
+#### Option 1: Using the Dockerfile directly
+
+1. Select "Use a Dockerfile" option
+2. Paste the contents of the Dockerfile directly into Coolify
+   - The Dockerfile is designed to clone the repository from GitHub, so it doesn't need any additional files
+3. Set the port to 3000 (for the frontend)
 
 ### 4. Configure Environment Variables
 
