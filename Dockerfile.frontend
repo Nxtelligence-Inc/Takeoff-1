@@ -4,25 +4,25 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache python3 make g++
+# Install build dependencies and pnpm
+RUN apk add --no-cache python3 make g++ libc6-compat && \
+    npm install -g pnpm
 
 # Set build environment
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    NEXT_SHARP_PATH=/usr/local/lib/node_modules/sharp
+    NEXT_TELEMETRY_DISABLED=1
 
 # Copy package files
-COPY Frontend/package*.json ./
+COPY Frontend/package*.json Frontend/pnpm-lock.yaml ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps --no-install-checks
+# Install dependencies using pnpm
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the frontend code
 COPY Frontend/ ./
 
 # Build the Next.js application
-RUN npm run build --verbose
+RUN pnpm build
 
 # Expose the port the app runs on
 EXPOSE 3000
@@ -31,4 +31,4 @@ EXPOSE 3000
 RUN mkdir -p public/uploads public/results
 
 # Command to run the app
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]
