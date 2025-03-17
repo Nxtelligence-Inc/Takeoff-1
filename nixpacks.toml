@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs", "python39", "python39Packages.pip", "python39Packages.setuptools", "python39Packages.wheel"]
+
+[phases.install]
+cmds = [
+  "cd Frontend && npm install --legacy-peer-deps",
+  "pip install -r requirements.txt"
+]
+
+[phases.build]
+cmds = ["cd Frontend && npm run build"]
+
+[start]
+cmd = "sh ./start.sh"
