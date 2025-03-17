@@ -16,7 +16,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  swcMinify: true,
   output: 'standalone',
   experimental: {
     optimizePackageImports: ['@radix-ui/react-icons'],

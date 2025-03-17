@@ -13,8 +13,9 @@ ENV NODE_ENV=production \
 # Copy package files
 COPY Frontend/package*.json ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+# Install dependencies including dev dependencies
+RUN npm install --legacy-peer-deps && \
+    npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
 
 # Copy the rest of the frontend code
 COPY Frontend/ ./
