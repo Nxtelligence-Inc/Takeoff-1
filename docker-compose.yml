@@ -1,23 +1,23 @@
 version: '3.8'
 
 services:
-  frontend:
+  icf-frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "3000:3000"
+      - "3010:3000"
     volumes:
       - uploads:/app/public/uploads
       - results:/app/public/results
     depends_on:
-      - backend
+      - icf-backend
     environment:
       - NODE_ENV=production
       - CONTAINERIZED=true
-      - BACKEND_API_URL=http://backend:5000
+      - BACKEND_API_URL=http://icf-backend:5000
 
-  backend:
+  icf-backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
@@ -26,6 +26,9 @@ services:
       - results:/app/public/results
     environment:
       - NON_INTERACTIVE=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
 
 volumes:
   uploads:
