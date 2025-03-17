@@ -16,33 +16,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  swcMinify: true,
+  output: 'standalone',
   experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
-  },
+    optimizePackageImports: ['@radix-ui/react-icons'],
+  }
 }
 
-mergeConfig(nextConfig, userConfig)
-
-function mergeConfig(nextConfig, userConfig) {
-  if (!userConfig) {
-    return
-  }
-
-  for (const key in userConfig) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...userConfig[key],
-      }
-    } else {
-      nextConfig[key] = userConfig[key]
-    }
-  }
+if (userConfig) {
+  Object.assign(nextConfig, userConfig)
 }
 
 export default nextConfig
