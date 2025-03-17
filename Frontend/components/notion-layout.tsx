@@ -2,13 +2,15 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { FileText, Home, Menu, Search, Settings, Upload, Database, ChevronDown, ChevronRight, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { ThemeSwitcher } from "@/components/theme-switcher"
+import { useTheme } from "next-themes"
 
 interface NotionLayoutProps {
   children: React.ReactNode
@@ -18,6 +20,13 @@ export function NotionLayout({ children }: NotionLayoutProps) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [workspacesOpen, setWorkspacesOpen] = useState(true)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure component is mounted before accessing theme
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,10 +39,13 @@ export function NotionLayout({ children }: NotionLayoutProps) {
             </Button>
           </div>
           <div className="flex items-center mr-4">
-            <div className="h-8 w-8 rounded bg-foreground flex items-center justify-center text-background font-weight-605 text-sm mr-2">
-              F
-            </div>
-            <span className="hidden sm:inline font-weight-605">Foundation Analyzer</span>
+            {mounted && (
+              <img 
+                src={theme === "dark" ? "/logos/nxtelligence-logo-white.png" : "/logos/nxtelligence-logo-black.png"} 
+                alt="NxTelligence Logo" 
+                className="h-8 w-auto"
+              />
+            )}
           </div>
         </div>
         <div className="notion-header-content">
@@ -56,6 +68,7 @@ export function NotionLayout({ children }: NotionLayoutProps) {
             <Button variant="ghost" size="sm" className="text-muted-foreground">
               Comments
             </Button>
+            <ThemeSwitcher />
             <Button variant="ghost" size="icon" className="text-muted-foreground">
               <Settings className="h-5 w-5" />
             </Button>
@@ -68,10 +81,13 @@ export function NotionLayout({ children }: NotionLayoutProps) {
         <div className="p-4">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded bg-foreground flex items-center justify-center text-background font-medium text-sm">
-                F
-              </div>
-              <span className="font-medium">Foundation Analyzer</span>
+              {mounted && (
+                <img 
+                  src={theme === "dark" ? "/logos/nxtelligence-logo-white.png" : "/logos/nxtelligence-logo-black.png"} 
+                  alt="NxTelligence Logo" 
+                  className="h-6 w-auto"
+                />
+              )}
             </div>
             <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
               <ChevronDown className="h-4 w-4" />
@@ -143,4 +159,3 @@ export function NotionLayout({ children }: NotionLayoutProps) {
     </div>
   )
 }
-

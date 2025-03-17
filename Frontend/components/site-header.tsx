@@ -27,10 +27,10 @@ export function SiteHeader({ showBackButton = false, backHref = "/", rightConten
           )}
           <Link href="/">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo_71ac8588-FZInvMcvr36DJnMMWdql5LrZklSDUF.svg"
-              alt="Foundation Plan Analyzer Logo"
+              src="/logos/nxtelligence-logo-black.png"
+              alt="NxTelligence Logo"
               width={180}
-              height={40}
+              height={52}
               priority
             />
           </Link>
@@ -49,4 +49,3 @@ export function SiteHeader({ showBackButton = false, backHref = "/", rightConten
     </header>
   )
 }
-

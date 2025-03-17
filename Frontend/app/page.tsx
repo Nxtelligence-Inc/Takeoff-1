@@ -130,7 +130,7 @@ export default async function Home() {
               letterSpacing: "-0.04em",
             }}
           >
-            <BarChart3 className="notion-page-icon h-8 w-8" />
+            <BarChart3 className="notion-page-icon h-8 w-8 mr-3" />
             Foundation Plan Analyzer
           </h1>
           <p className="text-muted-foreground mt-2">Analyze foundation plans for ICF metrics and visualize results</p>
