@@ -1,34 +1,19 @@
 version: '3.8'
 
 services:
-  icf-frontend:
-    # Use build for local development with Docker Desktop
-    # image: yourusername/icf-frontend:latest
+  icf-app:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile
     ports:
       - "3010:3000"
+      - "5000:5000"
     volumes:
       - uploads:/app/public/uploads
       - results:/app/public/results
-    depends_on:
-      - icf-backend
     environment:
       - NODE_ENV=production
       - CONTAINERIZED=true
-      - BACKEND_API_URL=http://icf-backend:5000
-
-  icf-backend:
-    # Use build for local development with Docker Desktop
-    # image: yourusername/icf-backend:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
-    volumes:
-      - uploads:/app/public/uploads
-      - results:/app/public/results
-    environment:
       - NON_INTERACTIVE=true
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON}
