@@ -1,9 +1,5 @@
-let userConfig = undefined
-try {
-  userConfig = await import('./v0-user-next.config')
-} catch (e) {
-  // ignore error
-}
+// No need to try importing a non-existent file
+const userConfig = undefined
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -23,6 +19,13 @@ const nextConfig = {
   webpack: (config) => {
     // Ensure proper module resolution
     config.resolve.modules = ['node_modules', '.']
+    
+    // Add alias for @ to match tsconfig paths
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': '.'
+    }
+    
     return config
   }
 }

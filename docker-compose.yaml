@@ -2,6 +2,8 @@ version: '3.8'
 
 services:
   icf-frontend:
+    # Use build for local development with Docker Desktop
+    # image: yourusername/icf-frontend:latest
     build:
       context: .
       dockerfile: Dockerfile.frontend
@@ -18,6 +20,8 @@ services:
       - BACKEND_API_URL=http://icf-backend:5000
 
   icf-backend:
+    # Use build for local development with Docker Desktop
+    # image: yourusername/icf-backend:latest
     build:
       context: .
       dockerfile: Dockerfile.backend
