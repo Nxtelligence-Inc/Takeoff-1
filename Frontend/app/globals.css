@@ -27,9 +27,9 @@
 }
 
 .dark {
-  --background: 0 0% 10%;
+  --background: 0 0% 13%;
   --foreground: 0 0% 98%;
-  --card: 0 0% 10%;
+  --card: 0 0% 12.2%;
   --card-foreground: 0 0% 98%;
   --popover: 0 0% 10%;
   --popover-foreground: 0 0% 98%;
@@ -64,7 +64,8 @@
   h4,
   h5,
   h6 {
-    font-weight: 605;
+    font-weight: 710;
+    letter-spacing: -0.04em;
   }
 }
 
@@ -97,7 +98,7 @@
 
 .notion-main {
   margin-left: 0;
-  padding-top: 4rem;
+  padding-top: 1rem;
   min-height: 100vh;
 }
 
@@ -164,8 +165,8 @@
 
 .notion-page-title {
   font-size: 1.875rem;
-  font-weight: 605;
-  letter-spacing: -0.025em;
+  font-weight: 710;
+  letter-spacing: -0.04em;
 }
 
 .notion-page-icon {
@@ -250,7 +251,7 @@
   padding: 0.75rem;
   background-color: hsl(var(--muted));
   color: hsl(var(--muted-foreground));
-  font-weight: 605;
+  font-weight: 710;
   font-size: 0.875rem;
 }
 
@@ -268,29 +269,34 @@
 h1 {
   font-size: 30px;
   font-style: normal;
-  font-weight: 605;
+  font-weight: 710;
   line-height: 95%;
   letter-spacing: -.04em;
 }
 
 /* Consistent header styling */
 h2 {
-  font-weight: 605;
+  font-weight: 710;
+  letter-spacing: -.04em;
 }
 
 h3 {
-  font-weight: 605;
+  font-weight: 710;
+  letter-spacing: -.04em;
 }
 
 h4 {
-  font-weight: 605;
+  font-weight: 710;
+  letter-spacing: -.04em;
 }
 
 h5 {
-  font-weight: 605;
+  font-weight: 710;
+  letter-spacing: -.04em;
 }
 
 h6 {
-  font-weight: 605;
+  font-weight: 710;
+  letter-spacing: -.04em;
 }
 
