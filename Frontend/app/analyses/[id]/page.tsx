@@ -9,7 +9,7 @@ import { FileText } from "lucide-react"
 import { AnalysisExportActions } from "@/components/analysis-export-actions"
 import { FoundationPlanVisualization } from "@/components/foundation-plan-visualization"
 import { ICFMetricsTable } from "@/components/icf-metrics-table"
-import { ICFMetricsDisplay } from "@/components/icf-metrics-display"
+import { ICFMetricsDisplay } from "../../../components/icf-metrics-display"
 import { WallsTable } from "@/components/walls-table"
 import { ICFMaterialsQuotation, ICFMaterialsCalculation } from "@/components/icf-materials-quotation"
 
