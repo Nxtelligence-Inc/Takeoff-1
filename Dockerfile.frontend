@@ -7,6 +7,9 @@ WORKDIR /app
 # Install build dependencies
 RUN apk add --no-cache python3 make g++
 
+# Set NODE_ENV
+ENV NODE_ENV=production
+
 # Copy package files
 COPY Frontend/package*.json ./
 
@@ -16,8 +19,8 @@ RUN npm install --legacy-peer-deps
 # Copy the rest of the frontend code
 COPY Frontend/ ./
 
-# Build the Next.js application
-RUN npm run build
+# Build the Next.js application with debug output
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Expose the port the app runs on
 EXPOSE 3000
