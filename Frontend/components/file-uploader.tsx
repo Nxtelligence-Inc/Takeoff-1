@@ -197,7 +197,7 @@ export function FileUploader({
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to analyze foundation plan")
+        throw new Error(data.error || "Failed to analyze plan")
       }
 
       // Redirect to analysis results page
@@ -244,7 +244,7 @@ export function FileUploader({
         ) : (
           <>
             <Upload className="mb-4 h-12 w-12 text-muted-foreground" />
-            <h3 className="mb-2 text-lg font-medium">Upload Foundation Plan</h3>
+            <h3 className="mb-2 text-lg font-medium">Upload Takeoff Plan</h3>
             <p className="mb-4 text-center text-sm text-muted-foreground">
               Drag and drop or click to upload
               <br />
