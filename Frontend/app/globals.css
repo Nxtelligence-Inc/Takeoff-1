@@ -5,6 +5,15 @@
 :root {
   /* Notion-inspired color palette */
   --background: 0 0% 100%;
+  --foreground: 166 66% 17%;
+  background-image: linear-gradient(to bottom right, hsl(0 0% 100%), hsl(0 0% 96%));
+  background-attachment: fixed;
+  background-size: cover;
+  --heading-1: 166 66% 17%;
+  --heading-2: 166 66% 17%;
+  --heading-3: 0 0% 28%;
+  --heading-4: 0 0% 28%;
+  --heading-5: 0 0% 28%;
   --foreground: 0 0% 10%;
   --card: 0 0% 100%;
   --card-foreground: 0 0% 10%;
@@ -34,6 +43,11 @@
   background-image: linear-gradient(to bottom right, hsl(186 50% 11%), hsl(186 50% 7%));
   background-attachment: fixed;
   background-size: cover;
+  --heading-1: 0 0% 98%;
+  --heading-2: 0 0% 98%;
+  --heading-3: 0 0% 98%;
+  --heading-4: 0 0% 98%;
+  --heading-5: 0 0% 98%;
   --card: 186 50% 10.2%;
   --card-foreground: 0 0% 98%;
   --popover: 186 50% 10%;
@@ -282,30 +296,36 @@ h1 {
   font-weight: 710;
   line-height: 95%;
   letter-spacing: -.04em;
+  color: hsl(var(--heading-1));
 }
 
 /* Consistent header styling */
 h2 {
   font-weight: 710;
   letter-spacing: -.04em;
+  color: hsl(var(--heading-2));
 }
 
 h3 {
   font-weight: 710;
   letter-spacing: -.04em;
+  color: hsl(var(--heading-3));
 }
 
 h4 {
   font-weight: 710;
   letter-spacing: -.04em;
+  color: hsl(var(--heading-4));
 }
 
 h5 {
   font-weight: 710;
   letter-spacing: -.04em;
+  color: hsl(var(--heading-5));
 }
 
 h6 {
   font-weight: 710;
   letter-spacing: -.04em;
+  color: hsl(var(--heading-6));
 }
