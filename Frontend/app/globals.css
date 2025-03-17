@@ -24,6 +24,8 @@
   --input: 0 0% 90%;
   --ring: 0 0% 70%;
   --radius: 0.3rem;
+  --button-primary: 186 50% 20%;
+  --button-secondary: 73 100% 50%;
 }
 
 .dark {
@@ -46,6 +48,8 @@
   --border: 0 0% 20%;
   --input: 0 0% 20%;
   --ring: 0 0% 28%;
+  --button-secondary: 186 50% 20%;
+  --button-primary: 73 100% 50%;
 }
 
 @layer base {
@@ -211,21 +215,24 @@
 }
 
 .notion-button-primary {
-  background-color: hsl(var(--primary));
+  background-color: hsl(var(--button-primary));
   color: hsl(var(--primary-foreground));
 }
 
-.notion-button-primary:hover {
-  background-color: hsl(var(--primary) / 0.9);
+button.notion-button-primary:hover,
+a.notion-button-primary:hover {
+  background-color: hsl(var(--button-primary) / 0.9);
 }
 
-.notion-button-secondary {
-  background-color: hsl(var(--secondary));
+button.notion-button-secondary,
+a.notion-button-secondary {
+  background-color: hsl(var(--button-secondary));
   color: hsl(var(--secondary-foreground));
 }
 
-.notion-button-secondary:hover {
-  background-color: hsl(var(--secondary) / 0.8);
+button.notion-button-secondary:hover,
+a.notion-button-secondary:hover {
+  background-color: hsl(var(--button-secondary) / 0.8);
 }
 
 .notion-card {
