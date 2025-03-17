@@ -171,9 +171,9 @@ export default async function Home() {
             }}
           >
             <BarChart3 className="notion-page-icon h-8 w-8 mr-3" />
-            Foundation Plan Analyzer
+            Takeoff Plan Analyzer
           </h1>
-          <p className="text-muted-foreground mt-2">Analyze foundation plans for ICF metrics and visualize results</p>
+          <p className="text-muted-foreground mt-2">Analyze takeoff plans for ICF date and visualize results</p>
         </div>
 
         {/* Quick actions */}
@@ -182,16 +182,16 @@ export default async function Home() {
             <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-3">
               <Upload className="h-6 w-6 text-foreground" />
             </div>
-            <h3 className="font-weight-605 mb-1">New Analysis</h3>
-            <p className="text-sm text-muted-foreground">Upload and analyze a foundation plan</p>
+            <h3 className="font-weight-605 mb-1">Analyze a Takeoff</h3>
+            <p className="text-sm text-muted-foreground">Upload and analyze a takeoff plan</p>
           </Link>
 
           <Link href="/analyses" className="notion-card p-4 flex flex-col items-center text-center">
             <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-3">
               <FileText className="h-6 w-6 text-foreground" />
             </div>
-            <h3 className="font-weight-605 mb-1">View Analyses</h3>
-            <p className="text-sm text-muted-foreground">Browse all foundation plan analyses</p>
+            <h3 className="font-weight-605 mb-1">Takeoff Archive</h3>
+            <p className="text-sm text-muted-foreground">Browse past takeoff plans analyzed</p>
           </Link>
 
           <Link href="/database" className="notion-card p-4 flex flex-col items-center text-center">
@@ -206,7 +206,7 @@ export default async function Home() {
         {/* Recent analyses */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-weight-605">Recent Analyses</h2>
+            <h2 className="text-xl font-weight-605">Recent Activity</h2>
             <Link href="/analyses">
               <Button variant="ghost" size="sm" className="text-muted-foreground">
                 View all
@@ -238,7 +238,7 @@ export default async function Home() {
                 <Link href="/analyze">
                   <Button className="notion-button notion-button-primary">
                     <Upload className="mr-2 h-4 w-4" />
-                    Upload Foundation Plan
+                    Upload Takeoff
                   </Button>
                 </Link>
               </div>
@@ -252,7 +252,7 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="notion-card p-4">
-              <div className="text-sm text-muted-foreground mb-1">Total Analyses</div>
+              <div className="text-sm text-muted-foreground mb-1">Total Plans Analyzed</div>
               <div className="text-3xl font-medium">{metrics.total_analyses}</div>
             </div>
 
