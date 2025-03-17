@@ -8,17 +8,16 @@ RUN apk add --no-cache python3 make g++ libc6-compat
 
 # Set build environment
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    NEXT_BUILD_ENV=production \
-    TS_NODE_PROJECT=null \
-    NEXT_PROJECT_ROOT=/app \
-    NEXT_PRIVATE_LOCAL_WEBPACK=true
+    NEXT_TELEMETRY_DISABLED=1
 
 # Copy package files
 COPY Frontend/package*.json ./
 
-# Install dependencies including dev dependencies
-RUN npm install --legacy-peer-deps && \
+# Clean install of dependencies
+RUN rm -rf node_modules && \
+    npm cache clean --force && \
+    npm install --legacy-peer-deps && \
+    npm install -D webpack@latest webpack-cli@latest && \
     npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
 
 # Copy the rest of the frontend code
