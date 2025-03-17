@@ -3,26 +3,29 @@
 # Frontend build stage
 FROM node:20.11-alpine AS frontend-builder
 
+# Install git
+RUN apk add --no-cache git python3 make g++ libc6-compat
+
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache python3 make g++ libc6-compat
+# Clone the repository
+RUN git clone https://github.com/Nxtelligence-Inc/Takeoff-1.git /tmp/repo
 
 # Set build environment
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     NEXT_PUBLIC_API_URL=http://localhost:5000
 
-# Copy package files
-COPY Frontend/package*.json ./
+# Copy package files from the cloned repository
+RUN cp -r /tmp/repo/Frontend/package*.json ./
 
 # Clean install of dependencies
 RUN npm install --legacy-peer-deps && \
     npm install -D tailwindcss postcss autoprefixer
 
-# Copy the rest of the frontend code
-COPY Frontend/ ./
+# Copy the rest of the frontend code from the cloned repository
+RUN cp -r /tmp/repo/Frontend/* ./
 
 # Build the Next.js application
 RUN npm run build
@@ -30,10 +33,11 @@ RUN npm run build
 # Backend stage
 FROM python:3.9-slim
 
-# Install Node.js for the frontend
+# Install Node.js for the frontend and git
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
+    git \
     libgl1-mesa-glx \
     libglib2.0-0 \
     supervisor \
@@ -45,9 +49,12 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 RUN mkdir -p /app/frontend /app/backend /app/public/uploads /app/public/results
 
-# Copy backend files
-COPY src/ /app/backend/src/
-COPY requirements.txt /app/backend/
+# Clone the repository if it doesn't exist in the build context
+RUN git clone https://github.com/Nxtelligence-Inc/Takeoff-1.git /tmp/repo
+
+# Copy backend files from the cloned repository
+RUN cp -r /tmp/repo/src/ /app/backend/src/
+RUN cp /tmp/repo/requirements.txt /app/backend/
 
 # Install Python dependencies
 RUN cd /app/backend && pip install --no-cache-dir -r requirements.txt
