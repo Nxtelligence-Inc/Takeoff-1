@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { NotionLayout } from "@/components/notion-layout"
-import { Button } from "@/components/ui/button"
-import { CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
+import { NotionLayout } from "../../components/notion-layout"
+import { Button } from "../../components/ui/button"
+import { CardContent } from "../../components/ui/card"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Separator } from "../../components/ui/separator"
 import { Upload } from "lucide-react"
-import { FileUploader } from "@/components/file-uploader"
+import { FileUploader } from "../../components/file-uploader"
 
 export default function AnalyzePage() {
   const [drawingName, setDrawingName] = useState("")
