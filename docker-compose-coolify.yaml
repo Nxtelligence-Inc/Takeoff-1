@@ -1,0 +1,84 @@
+version: '3.8'
+
+# For Coolify deployment:
+# 1. In Coolify dashboard, add these environment variables under your service configuration
+# 2. For sensitive values like API keys, use Coolify's secret management feature
+
+services:
+  backend:
+    image: rb0001/takeoff1:backend
+    container_name: drawing-ocr-backend
+    ports:
+      - "5002:5000"
+    environment:
+      # Required environment variables
+      - NON_INTERACTIVE=true
+      
+      # Optional API keys for LLM features - uncomment and set values
+      # For Coolify: Add these as environment variables in the Coolify dashboard
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      
+      # For Google Cloud Vision - uncomment and set path
+      # - GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
+      
+      # Add any other environment variables needed for your deployment
+      # - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - shared_data:/app/public
+      - ./Frontend/public/logos:/app/public/logos
+      
+      # For local deployment: Uncomment to mount your .env file
+      # - ./.env:/app/.env
+      
+      # For Google credentials: Uncomment and set correct path
+      # - ./your-project-credentials.json:/app/google-credentials.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+  frontend:
+    image: rb0001/takeoff1:frontend
+    container_name: drawing-ocr-frontend
+    ports:
+      - "3010:3000"
+    environment:
+      # Required environment variables
+      - CONTAINERIZED=true
+      - BACKEND_API_URL=http://backend:5000
+      
+      # Add any frontend-specific environment variables here
+      # - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5002}
+    volumes:
+      - shared_data:/app/public
+      - ./Frontend/public/logos:/app/public/logos
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+volumes:
+  shared_data:
+    # This volume is shared between frontend and backend to store uploads and results

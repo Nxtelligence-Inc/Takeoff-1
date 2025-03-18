@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid"
 // Check if we're running in a containerized environment
 const IS_CONTAINERIZED = process.env.CONTAINERIZED === "true"
 const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://backend:5000'
+const BACKEND_ROOT_DIR = process.env.BACKEND_ROOT_DIR || path.resolve(process.cwd(), "..")
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,9 +85,24 @@ export async function POST(request: NextRequest) {
     
     // Build command with appropriate options
     // Use absolute paths to avoid any path resolution issues
-    const rootDir = path.resolve(process.cwd(), "..")
-    const pythonScript = path.join(rootDir, "src", "perimeter_wall_extractor.py")
-    let command = `python "${pythonScript}" "${uploadPath}" --overall_width "38'-0" --output_dir "${resultsDir}" --no_visualize`
+    const pythonScript = path.join(BACKEND_ROOT_DIR, "src", "perimeter_wall_extractor.py")
+    
+    // Check if the Python script exists
+    try {
+      await import('fs').then(fs => fs.promises.access(pythonScript))
+    } catch (error) {
+      console.error(`Python script not found at ${pythonScript}`)
+      return NextResponse.json({ 
+        error: "Backend script not found", 
+        details: `Could not find the Python script at ${pythonScript}. Please check your installation or set BACKEND_ROOT_DIR environment variable.`
+      }, { status: 500 })
+    }
+    
+    // Use the user-provided overall width or default to 38'-0"
+    const defaultWidth = "38'-0\""
+    // Escape quotes in the overall width to avoid shell parsing issues
+    const escapedWidth = defaultWidth.replace(/"/g, '\\"')
+    let command = `python "${pythonScript}" "${uploadPath}" --overall_width "${escapedWidth}" --output_dir "${resultsDir}" --no_visualize`
     
     console.log("Executing command:", command)
     
@@ -100,6 +116,9 @@ export async function POST(request: NextRequest) {
     
     // Set environment variable for non-interactive mode
     const env = { ...process.env, NON_INTERACTIVE: "true" };
+    
+    // Note: The Python script doesn't directly accept wall_thickness and wall_height parameters
+    // These values will be added to the metadata after processing
     
     // Execute Python script
     let output: string

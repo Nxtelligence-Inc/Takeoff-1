@@ -4,8 +4,8 @@
 mkdir -p public/uploads public/results
 
 # Set default ports if not provided by the environment
-BACKEND_PORT=${BACKEND_PORT:-5000}
-PORT=${PORT:-3000}
+BACKEND_PORT=${BACKEND_PORT:-5001}
+PORT=${PORT:-3002}
 
 # Set API URL for frontend
 export NEXT_PUBLIC_API_URL="http://localhost:${BACKEND_PORT}"
@@ -18,7 +18,7 @@ BACKEND_PID=$!
 sleep 3
 
 # Start the frontend with the PORT environment variable
-cd Frontend && PORT=${PORT} npm start
+cd Frontend && PORT=${PORT} npm run dev
 
 # If frontend exits, kill the backend
 kill $BACKEND_PID

@@ -4,9 +4,42 @@ import uuid
 import json
 import datetime
 import subprocess
+import platform
 from pathlib import Path
 
 app = Flask(__name__)
+
+@app.route('/health', methods=['GET'])
+def health():
+    """Health check endpoint for container monitoring"""
+    try:
+        # Check if we can access the file system
+        if not os.path.exists('/app/public'):
+            return jsonify({"status": "unhealthy", "reason": "Cannot access /app/public directory"}), 500
+        
+        # Check if we have required environment variables
+        required_vars = ['NON_INTERACTIVE', 'PYTHONUNBUFFERED']
+        missing_vars = [var for var in required_vars if var not in os.environ]
+        if missing_vars:
+            return jsonify({"status": "unhealthy", "reason": f"Missing environment variables: {missing_vars}"}), 500
+        
+        # Check if we can import required modules
+        try:
+            import flask
+            import numpy
+            import cv2
+        except ImportError as e:
+            return jsonify({"status": "unhealthy", "reason": f"Missing module: {str(e)}"}), 500
+        
+        # All checks passed
+        return jsonify({
+            "status": "healthy",
+            "python_version": platform.python_version(),
+            "flask_version": flask.__version__,
+            "timestamp": datetime.datetime.now().isoformat()
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "reason": str(e)}), 500
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():

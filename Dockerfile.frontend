@@ -1,40 +1,110 @@
-FROM node:20.11-alpine
+FROM node:18-alpine AS base
 
-# Set working directory
+# Install dependencies only when needed
+FROM base AS deps
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache python3 make g++ libc6-compat
-
-# Set build environment
-ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    NODE_PATH=/app \
-    NEXT_PUBLIC_API_URL=http://icf-backend:5000 \
-    TS_NODE_BASEURL=/app \
-    NEXT_PRIVATE_LOCAL_WEBPACK_PROCESSING=true
-
 # Copy package files
-COPY Frontend/package*.json ./
+COPY Frontend/package.json Frontend/package-lock.json* ./
 
-# Clean install of dependencies
-RUN rm -rf node_modules && \
-    npm cache clean --force && \
-    npm install --legacy-peer-deps && \
-    npm install -D webpack@latest webpack-cli@latest && \
-    npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+# Install dependencies
+RUN npm ci
 
-# Copy the rest of the frontend code
-COPY Frontend/ ./
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY Frontend/ .
 
-# Build the Next.js application
-# Add NODE_PATH to ensure correct module resolution during build
-ENV NODE_PATH=/app
+# Set environment variables for build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV CONTAINERIZED=true
+ENV BACKEND_API_URL=http://backend:5000
+
+# Ensure next.config.js has output: 'standalone'
+RUN echo "Verifying next.config.js contains standalone output..." && \
+    grep -q "output.*standalone" next.config.mjs || \
+    echo "Warning: standalone output may not be configured"
+
+# Build the application with explicit standalone output
 RUN npm run build
 
-# Create volume directories
-RUN mkdir -p public/uploads public/results
+# Check build output structure
+RUN ls -la .next/ && \
+    if [ -d ".next/standalone" ]; then \
+      echo "Using standalone output format"; \
+    elif [ -d ".next/server" ]; then \
+      echo "Using server output format"; \
+    else \
+      echo "Error: Neither standalone nor server directory found"; \
+      exit 1; \
+    fi
 
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV CONTAINERIZED=true
+ENV BACKEND_API_URL=http://backend:5000
+ENV HOSTNAME=0.0.0.0
+
+# Create necessary directories
+RUN mkdir -p public/uploads public/results public/logos
+
+# Copy built application based on available structure
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+
+# Check if server.js exists in the builder stage and copy it if it does
+RUN set -e; \
+    if [ -f "/app/.next/standalone/server.js" ]; then \
+      echo "Found server.js in .next/standalone directory"; \
+      cp /app/.next/standalone/server.js .; \
+      cp -r /app/.next/standalone/node_modules ./node_modules; \
+    elif [ -f "/app/.next/server/app-paths-manifest.json" ]; then \
+      echo "Using server build structure, creating server.js"; \
+      echo 'const { createServer } = require("http");' > server.js; \
+      echo 'const { parse } = require("url");' >> server.js; \
+      echo 'const next = require("next");' >> server.js; \
+      echo 'const app = next({ dev: false });' >> server.js; \
+      echo 'const handle = app.getRequestHandler();' >> server.js; \
+      echo 'app.prepare().then(() => {' >> server.js; \
+      echo '  createServer((req, res) => {' >> server.js; \
+      echo '    const parsedUrl = parse(req.url, true);' >> server.js; \
+      echo '    handle(req, res, parsedUrl);' >> server.js; \
+      echo '  }).listen(3000, (err) => {' >> server.js; \
+      echo '    if (err) throw err;' >> server.js; \
+      echo '    console.log("> Ready on http://localhost:3000");' >> server.js; \
+      echo '  });' >> server.js; \
+      echo '});' >> server.js; \
+    else \
+      echo "WARNING: Could not find server.js or server build structure"; \
+      echo "Creating minimal server.js file"; \
+      echo 'const { createServer } = require("http");' > server.js; \
+      echo 'const next = require("next");' >> server.js; \
+      echo 'const app = next({ dev: false });' >> server.js; \
+      echo 'const handle = app.getRequestHandler();' >> server.js; \
+      echo 'app.prepare().then(() => {' >> server.js; \
+      echo '  createServer((req, res) => handle(req, res))' >> server.js; \
+      echo '    .listen(3000, () => console.log("> Ready on http://localhost:3000"));' >> server.js; \
+      echo '});' >> server.js; \
+    fi
+
+# Install curl for debugging
+RUN apk add --no-cache curl
+
+# Add a healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "const http = require('http'); \
+    const options = { hostname: 'localhost', port: 3000, path: '/', timeout: 2000 }; \
+    const req = http.get(options, (res) => process.exit(res.statusCode >= 200 && res.statusCode < 400 ? 0 : 1)); \
+    req.on('error', () => process.exit(1)); \
+    req.end();"
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Run the application with explicit port binding to all interfaces
+CMD ["node", "-e", "process.env.HOSTNAME='0.0.0.0'; require('./server.js'); console.log('Server explicitly bound to all interfaces (0.0.0.0)')"]

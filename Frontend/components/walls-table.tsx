@@ -69,7 +69,15 @@ export function WallsTable({ analysisId }: WallsTableProps) {
         setLoading(true)
         setError(null)
         
-        const response = await fetch(`/results/${analysisId}/analysis_results.json`)
+        // Always use the API route for reliability in both containerized and local environments
+        const response = await fetch(`/api/analyses/${analysisId}/results`, {
+          // Add cache busting parameter
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        })
         
         if (!response.ok) {
           throw new Error(`Failed to fetch analysis data: ${response.statusText}`)
@@ -85,7 +93,7 @@ export function WallsTable({ analysisId }: WallsTableProps) {
         
         setLoading(false)
       } catch (err) {
-        // Set error state instead of logging to console
+        console.error("Error fetching walls data:", err)
         setError(err instanceof Error ? err.message : "Failed to load walls data")
         setLoading(false)
       }

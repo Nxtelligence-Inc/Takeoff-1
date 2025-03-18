@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: drawing-ocr-backend
+    ports:
+      - "5002:5000"
+    environment:
+      - NON_INTERACTIVE=true
+      # Add your API keys here or use a .env file
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      # - GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
+    volumes:
+      - shared_data:/app/public
+      - ./Frontend/public/logos:/app/public/logos
+      # Uncomment to mount your .env file
+      # - ./.env:/app/.env
+      # Uncomment to mount Google credentials
+      # - ./your-project-credentials.json:/app/google-credentials.json
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: drawing-ocr-frontend
+    ports:
+      - "3010:3000"
+    environment:
+      - CONTAINERIZED=true
+      - BACKEND_API_URL=http://backend:5000
+    volumes:
+      - shared_data:/app/public
+      - ./Frontend/public/logos:/app/public/logos
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  shared_data:
+    # This volume is shared between frontend and backend to store uploads and results

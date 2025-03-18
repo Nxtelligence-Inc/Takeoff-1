@@ -40,21 +40,15 @@ export function FoundationPlanVisualization({ analysisId }: FoundationPlanVisual
         setLoading(true)
         setError(null)
         
-        // First check if there's a visualization image
-        const visualizationUrl = `/results/${analysisId}/perimeter_walls.png`
-        
-        // Create a new Image to check if the visualization exists
-        const img = new window.Image()
-        img.src = visualizationUrl
-        
-        // Wait for the image to load or fail
-        const imageExists = await new Promise<boolean>((resolve) => {
-          img.onload = () => resolve(true)
-          img.onerror = () => resolve(false)
+        // Always use the API route for reliability in both containerized and local environments
+        const response = await fetch(`/api/analyses/${analysisId}/results?t=${lastRefresh}`, {
+          // Add cache busting headers
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
         })
-        
-        // Always fetch the JSON data for real-time updates
-        const response = await fetch(`/results/${analysisId}/analysis_results.json?t=${lastRefresh}`)
         
         if (!response.ok) {
           throw new Error(`Failed to fetch analysis data: ${response.statusText}`)
@@ -63,12 +57,8 @@ export function FoundationPlanVisualization({ analysisId }: FoundationPlanVisual
         const data = await response.json()
         setAnalysisData(data)
         
-        if (imageExists && !lastRefresh) {
-          // Only use the image on first load, after that use canvas for real-time updates
-          setImageUrl(visualizationUrl)
-          setLoading(false)
-          return
-        }
+        // Skip image loading and always use canvas rendering in Docker environment
+        // This avoids 404 errors when trying to load images directly
         
         // Render the data on the canvas
         renderFoundationPlan(data)

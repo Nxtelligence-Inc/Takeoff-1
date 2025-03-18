@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react"
-import { notFound } from "next/navigation"
+import { notFound, useParams } from "next/navigation"
 import Image from "next/image"
 import { NotionLayout } from "../../../components/notion-layout"
 import { Button } from "../../../components/ui/button"
@@ -18,21 +18,37 @@ export const dynamic = "force-dynamic"
 
 async function getAnalysisData(id: string) {
   try {
-    const response = await fetch(`/results/${id}/analysis_results.json`)
+    // Always use the API route for reliability in both containerized and local environments
+    const response = await fetch(`/api/analyses/${id}/results`, {
+      // Add cache busting headers
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
+    
     if (!response.ok) {
+      console.error(`Failed to fetch analysis results for ID: ${id}`)
       return null
     }
+    
     const data = await response.json()
     return data
   } catch (error) {
-    // Silently return null for any errors
+    console.error(`Error fetching analysis data: ${error instanceof Error ? error.message : String(error)}`)
     return null
   }
 }
 
-export default function AnalysisDetailPage({ params }: { params: { id: string } }) {
+export default function AnalysisDetailPage() {
+  // Use the useParams hook to get the ID from the URL
+  // This avoids both the direct params access warning and the React.use() suspension error
+  const params = useParams();
+  const analysisId = Array.isArray(params.id) ? params.id[0] : params.id as string;
+  
   // Store the ID in a ref to avoid re-renders
-  const idRef = React.useRef(params.id);
+  const idRef = React.useRef(analysisId);
   const id = idRef.current;
   
   const [materials, setMaterials] = useState<ICFMaterialsCalculation | null>(null)
