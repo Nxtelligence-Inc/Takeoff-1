@@ -98,11 +98,18 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
     
-    // Use the user-provided overall width or default to 38'-0"
-    const defaultWidth = "38'-0\""
-    // Escape quotes in the overall width to avoid shell parsing issues
-    const escapedWidth = defaultWidth.replace(/"/g, '\\"')
-    let command = `python "${pythonScript}" "${uploadPath}" --overall_width "${escapedWidth}" --output_dir "${resultsDir}" --no_visualize`
+    // Set up the command with the output directory and input file
+    let command = `python "${pythonScript}" "${uploadPath}" --output_dir "${resultsDir}" --no_visualize`
+    
+    // Add overall width parameter only if not using LLM
+    // When useLLM is true, the script will extract the width from the drawing
+    if (!useLLM) {
+      // Use the user-provided overall width or default to 38'-0"
+      const defaultWidth = "38'-0\""
+      // Escape quotes in the overall width to avoid shell parsing issues
+      const escapedWidth = defaultWidth.replace(/"/g, '\\"')
+      command += ` --overall_width "${escapedWidth}"`
+    }
     
     console.log("Executing command:", command)
     
